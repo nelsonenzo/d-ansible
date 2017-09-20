@@ -9,22 +9,31 @@ Using simple Docker volume mounts, you can get a lot of the functiaonilty your u
 ## Adjust as needed.
 ## 1) Run it:
 docker run -d -it \
-    -v ~/repos/ansible:/etc/ansible \ 
-    -v ~/.ansible_vault_pass.txt:/root/.ansible_vault_pass.txt \ 
-    -v ~/.ssh:/root/.ssh \         
+    -v ~/repos/ansible:/etc/ansible \
+    -v ~/.ansible_vault_pass.txt:/root/.ansible_vault_pass.txt \
+    -v ~/.ssh:/root/.ssh \
     -v ~/.aws/credentials:/root/.aws/credentials \
     -v $(dirname $SSH_AUTH_SOCK):$(dirname $SSH_AUTH_SOCK) \
     -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
     -h localhost \
-    --name ansible nelsonenzo/d-ansible   
+    --name ansible nelsonenzo/d-ansible 
 
 ## 2) exec into the container
 docker exec -it ansible /bin/bash
 
 ## 3) check the version you are running, it should be close to edge.
 ansible --version
+  ansible 2.5.0 (devel d395166ae0) last updated 2017/09/20 07:12:22 (GMT +000)
 
-## Explained
+## 4) Go to the very edge. Litterally, the last ansible merge to master.
+cd /opt/ansible/ansible
+git pull
+ansible --version
+  ansible 2.5.0 (devel ca56a248d8) last updated 2017/09/20 08:02:14 (GMT +000)
+```
+
+## Usage Explained
+```sh
 docker run -d -it \
     -v ~/repos/ansible:/etc/ansible \    
       ## THE MOST IMPORTANT ONE TO CHANGE ##
@@ -60,13 +69,16 @@ docker run -d -it \
 ```
 
 
-### Rebuilding it locally
+### Re-building it locally
 ```sh
+## clone it
+git clone git@github.com:nelsonenzo/d-ansible.git
+
 ## build it
-docker build . -t localhost/d-ansible:latest
+docker build . -t local/d-ansible:latest
 
 ## run it (add volume mounts as desired)
-docker run -it -d --name local-d-ansible localhost/d-ansible:latest 
+docker run -it -d --name local-d-ansible local/d-ansible:latest 
 
 ## use it
 docker exec -it local-d-ansible /bin/bash
